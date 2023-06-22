@@ -1,6 +1,6 @@
 #include"Account.h"
-Account::Account(string id, std::string name, string password) :id(id), name(name), password(password) {
-}
+Account::Account(string id) :id(id) {}
+Account::Account(string id, std::string name, string password) :id(id), name(name), password(password) {}
 string Account::getId() {
     return id;
 }
@@ -19,5 +19,6 @@ void Account::setPassword(string password) {
 void Account::modifyInfo(string name, string password) {
     setName(name);
     setPassword(password);
-    cout << "信息已更改." << endl;
+    cout << "修改成功!" << endl;
+    saveData();
 }

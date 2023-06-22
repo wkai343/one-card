@@ -1,11 +1,11 @@
 #pragma once
 #include"Account.h"
 #include"User.h"
-class Admin: public Account
-{
+class Admin : public Account {
 public:
+    Admin() {}
+    Admin(string id);
     Admin(string id, string name, string password);
-    bool isExist(string id);
     void addUser(string id, string name, string password, float balance);
     void deleteUser(string id);
     void viewUser(string id);
@@ -16,4 +16,9 @@ public:
     void reissueCard(string id);
     virtual void viewInfo();
     virtual void openMenu();
+    virtual void loadData();
+    virtual void saveData();
+};
+struct adminData {
+    char name[21]{};
 };

@@ -1,4 +1,5 @@
 #include"User.h"
+User::User(string id):Account(id) {}
 User::User(string id, string name, string password, float balance, int card, bool status) :Account(id, name, password), balance(balance), card(card), status(status) {}
 float User::getBalance() {
     return balance;
@@ -13,6 +14,8 @@ void User::consume(float amount) {
     if (balance >= amount) {
         balance -= amount;
         cout << "已消费 " << amount << " 元" << endl;
+        addRecord(amount, "消费");
+        saveData();
     }
     else {
         cout << "余额不足!" << endl;
@@ -20,6 +23,9 @@ void User::consume(float amount) {
 }
 void User::recharge(float amount) {
     balance += amount;
+    cout << "已充值 " << amount << " 元" << endl;
+    addRecord(amount, "充值");
+    saveData();
 }
 void User::viewInfo() {
     cout << "一卡通信息：" << endl;
@@ -31,8 +37,9 @@ void User::viewInfo() {
 }
 void User::addRecord(float amount, string type) {
     record[recordNum].amount = amount;
-    record[recordNum].type = type;
+    strcpy(record[recordNum].type, type.c_str());
     recordNum++;
+    saveData();
 }
 void User::viewRecords() {
     for (int i = 0; i < recordNum; i++) {
@@ -72,7 +79,6 @@ void User::openMenu() {
             cout << "请输入消费金额：";
             cin >> amount;
             consume(amount);
-            addRecord(amount, "消费");
             break;
         }
         case 3: {
@@ -85,7 +91,6 @@ void User::openMenu() {
             float amount;
             cin >> amount;
             recharge(amount);
-            addRecord(amount, "充值");
             break;
         }
         case 4:
@@ -113,4 +118,66 @@ void User::openMenu() {
             break;
         }
     }
+}
+void User::loadData() {
+    ifstream infile("users.dat", ios::binary | ios::in);
+    if (!infile) {
+        cout << "文件打开失败！" << endl;
+        return;
+    }
+    account acc;
+    for (int i = 0;!infile.eof();i++) {
+        infile.read((char*)&acc, sizeof(account));
+        if (acc.id == getId()) {
+            setPassword(acc.password);
+            break;
+        }
+    }
+    infile.close();
+    infile.open(getId() + ".dat", ios::binary | ios::in);
+    if (!infile) {
+        cout << "文件打开失败！" << endl;
+        return;
+    }
+    userData usr;
+    infile.read((char*)&usr, sizeof(userData));
+    setName(usr.name);
+    balance = usr.balance;
+    card = usr.card;
+    status = usr.status;
+    recordNum = usr.recordNum;
+    for (int i = 0; i < recordNum; i++) {
+        record[i] = usr.record[i];
+    }
+    infile.close();
+}
+void User::saveData() {
+    fstream outfile("users.dat", ios::binary | ios::in | ios::out);
+    if (!outfile) {
+        cout << "文件打开失败！" << endl;
+        return;
+    }
+    account acc;
+    for (int i = 0;!outfile.eof();i++) {
+        outfile.read((char*)&acc, sizeof(account));
+        if (acc.id == getId()) {
+            strcpy(acc.password, getPassword().c_str());
+            outfile.seekp(i * sizeof(account), ios::beg);
+            outfile.write((char*)&acc, sizeof(account));
+            break;
+        }
+    }
+    outfile.close();
+    outfile.open(getId() + ".dat", ios::binary | ios::out);
+    if (!outfile) {
+        cout << "文件打开失败！" << endl;
+        return;
+    }
+    userData usr((getName().c_str()), balance, card, status);
+    usr.recordNum = recordNum;
+    for (int i = 0; i < recordNum; i++) {
+        usr.record[i] = record[i];
+    }
+    outfile.write((char*)&usr, sizeof(userData));
+    outfile.close();
 }

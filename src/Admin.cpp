@@ -1,204 +1,115 @@
 #include"Admin.h"
+#include"User.h"
+#include"isExist.h"
+#include"check.h"
 #include<ctime>
-#include<fstream>
 int newCard() {
     int card;
     srand(time(NULL));
     card = rand() % 1000000000 + 1000000000;
     return card;
 }
-bool Admin::isExist(string id) {
-    ifstream infile("users.txt");
-    if (!infile) {
-        cerr << "Error: could not open infile users.txt" << endl;
-        exit(1);
-    }
-    string temp;
-    while (infile >> temp) {
-        if (temp == id) {
-            infile.close();
-            return true;
-        }
-        infile >> temp;
-    }
-    infile.close();
-    return false;
-}
+Admin::Admin(string id) :Account(id) {}
 Admin::Admin(string id, string name, string password) :Account(id, name, password) {}
 void Admin::addUser(string id, string name, string password, float balance) {
-    ifstream infile("users.txt");
-    if (!infile) {
-        cerr << "Error: could not open infile users.txt" << endl;
-        exit(1);
-    }
-    string temp;
-    while (infile >> temp) {
-        if (temp == id) {
-            cout << "该账号已存在." << endl;
-            return;
-        }
-        infile >> temp;
-    }
-    ofstream outfile(id + ".txt");
+    ofstream outfile("users.dat", ios::app | ios::binary);
     if (!outfile) {
-        cout << "打开失败." << endl;
+        cerr << "文件打开失败！" << endl;
         return;
     }
-    outfile << name << ' ' << balance << ' ' << newCard() << ' ' << 0 << endl;
+    account acc(id, password);
+    outfile.write((char*)&acc, sizeof(account));
     outfile.close();
-    outfile.open("users.txt", ios::app);
-    if (!outfile) {
-        cerr << "Error: could not open file users.txt" << endl;
-        exit(1);
-    }
-    outfile << id << ' ' << password << endl;
-    cout << "用户已添加." << endl;
+    outfile.open(id + ".dat", ios::binary | ios::out);
+    userData usr(name, balance, newCard());
+    outfile.write((char*)&usr, sizeof(userData));
+    outfile.close();
+    cout << "账号已创建." << endl;
 }
 void Admin::deleteUser(string id) {
-    ifstream infile("users.txt");
-    if (!infile) {
-        cerr << "Error: could not open infile users.txt" << endl;
-        exit(1);
-    }
-    string temp;
-    // temp.txt is a temporary file to store the data of users.txt
-    ofstream outfile("temp.txt");
+    fstream outfile("users.dat", ios::binary | ios::in | ios::out);
+    ofstream outfile2("temp.dat", ios::binary | ios::out);
     if (!outfile) {
-        cerr << "Error: could not open file temp.txt" << endl;
-        exit(1);
+        cerr << "文件打开失败！" << endl;
+        return;
     }
-    while (infile >> temp) {
-        if (temp == id) {
-            infile >> temp;
+    account acc;
+    while (outfile.read((char*)&acc, sizeof(account))) {
+        if (acc.id == id) {
             continue;
         }
-        outfile << temp << ' ';
-        infile >> temp;
-        outfile << temp << endl;
+        outfile2.write((char*)&acc, sizeof(account));
     }
-    remove("users.txt");
-    rename("temp.txt", "users.txt");
-    remove((id + ".txt").c_str());
-    cout << "用户已删除." << endl;
+    outfile.close();
+    outfile2.close();
+    remove("users.dat");
+    rename("temp.dat", "users.dat");
+    remove((id + ".dat").c_str());
+    cout << "账号已删除." << endl;
 }
 void Admin::viewUser(string id) {
-    ifstream infile(id + ".txt");
+    ifstream infile(id + ".dat");
     if (!infile) {
         cerr << "Error: could not open infile " << id << ".txt" << endl;
         exit(1);
     }
-    string name;
-    float balance;
-    int card;
-    bool status;
-    infile >> name >> balance >> card >> status;
-    cout << "账号：" << id << endl;
-    cout << "姓名：" << name << endl;
-    cout << "余额：" << balance << endl;
-    cout << "卡号：" << card << endl;
-    cout << "状态：" << (status ? "已挂失" : "正常") << endl;
+    userData usr;
+    infile.read((char*)&usr, sizeof(userData));
+    cout << "用户名：" << usr.name << endl;
+    cout << "余额：" << usr.balance << endl;
+    cout << "卡号：" << usr.card << endl;
+    cout << "状态：" << (usr.status ? "已挂失" : "正常") << endl;
+    infile.close();
 }
 void Admin::modifyUserName(string id, string name) {
-    ifstream infile(id + ".txt");
-    if (!infile) {
-        cerr << "Error: could not open infile " << id << ".txt" << endl;
-        exit(1);
-    }
-    string temp;
-    float balance;
-    int card;
-    bool status;
-    infile >> temp >> balance >> card >> status;
-    infile.close();
-    ofstream outfile(id + ".txt");
-    temp = name + " " + to_string(balance) + " " + to_string(card) + " " + to_string(status);
-    outfile << temp;
-    outfile.close();
+    User usr(id);
+    usr.loadData();
+    usr.setName(name);
+    usr.saveData();
     cout << "用户信息已修改." << endl;
 }
 void Admin::modifyUserPassword(string id, string password) {
-    ifstream inputFile("users.txt");
-    ofstream outputFile("temp.txt");
-    string line;
-    bool found = false;
-    while (getline(inputFile, line)) {
-        string currentUsername;
-        string currentPassword;
-        bool foundUsername = false;
-        for (char c : line) {
-            if (c == ' ') {
-                foundUsername = true;
-            }
-            else if (foundUsername) {
-                currentPassword += c;
-            }
-            else {
-                currentUsername += c;
-            }
-        }
-        if (currentUsername == id) {
-            outputFile << id << ' ' << password << '\n';
-            found = true;
-        }
-        else {
-            outputFile << line << '\n';
-        }
-    }
-    inputFile.close();
-    outputFile.close();
-    remove("users.txt");
-    rename("temp.txt", "users.txt");
-    if (found) {
-        cout << "修改成功." << endl;
-    }
-    else {
-        cout << "账号不存在." << endl;
-    }
+    User usr(id);
+    usr.loadData();
+    usr.setPassword(password);
+    usr.saveData();
+    cout << "用户信息已修改." << endl;
 }
-
 void Admin::changeUserStatus(string id) {
-    fstream file(id + ".txt");
-    if (!file) {
-        cerr << "Error: could not open file " << id << ".txt" << endl;
-        exit(1);
-    }
-    string name;
-    float balance;
-    int card;
-    bool status;
-    file >> name >> balance >> card >> status;
-    string temp = name + " " + to_string(balance) + " " + to_string(card) + " " + to_string(!status);
-    file.seekg(0, ios::beg);
-    file << temp;
-    file.close();
-    cout << "用户状态已修改." << endl;
+    User usr(id);
+    usr.loadData();
+    usr.changeStatus();
+    usr.saveData();
+    cout << "用户信息已修改." << endl;
 }
 void Admin::reissueCard(string id) {
-    fstream file(id + ".txt");
-    if (!file) {
-        cerr << "Error: could not open file " << id << ".txt" << endl;
-        exit(1);
-    }
-    string name;
-    float balance;
-    file >> name >> balance;
-    file.seekg(0, ios::beg);
-    string temp=name+" "+to_string(balance)+" "+to_string(newCard())+" 0";
-    file << temp;
-    cout << "已补卡." << endl;
+    User usr(id);
+    usr.loadData();
+    usr.card = newCard();
+    usr.status = false;
+    usr.saveData();
+    cout << "用户信息已修改." << endl;
 }
 void Admin::viewAllUsers() {
-    ifstream infile("users.txt");
+    ifstream infile("users.dat", ios::binary);
     if (!infile) {
-        cerr << "Error: could not open infile users.txt" << endl;
+        cerr << "Error: could not open infile users.dat" << endl;
         exit(1);
     }
-    string id;
-    while (infile >> id) {
-        viewUser(id);
-        infile >> id;
-        cout << endl;
+    account acc;
+    //判断文件是否为空
+    infile.seekg(0, ios::end);
+    if (infile.tellg() == 0) {
+        cout << "无用户信息." << endl;
+        infile.close();
+        return;
     }
+    infile.seekg(0, ios::beg);
+    while (infile.read((char*)&acc, sizeof(account))) {
+        cout << "-----------------------------------------" << endl;
+        viewUser(acc.id);
+    }
+    infile.close();
 }
 void Admin::viewInfo() {
     cout << "账号：" << getId() << endl;
@@ -215,11 +126,8 @@ void Admin::openMenu() {
         cout << "2.删除用户" << endl;
         cout << "3.查看用户" << endl;
         cout << "4.查看所有用户" << endl;
-        cout << "5.修改用户姓名" << endl;
-        cout << "6.修改用户密码" << endl;
-        cout << "7.修改用户状态" << endl;
-        cout << "8.补卡" << endl;
-        cout << "9.修改管理员信息" << endl;
+        cout << "5.修改用户信息" << endl;
+        cout << "6.修改管理员信息" << endl;
         cout << "0.退出" << endl;
         cout << "请输入选项：";
         cin >> option;
@@ -229,12 +137,31 @@ void Admin::openMenu() {
             float balance;
             cout << "请输入用户账号：";
             cin >> id;
+            if (isExist(id, 1)) {
+                cout << "用户已存在." << endl;
+                _sleep(1000);
+                break;
+            }
+            if (!idCheck(id)) {
+                cout << "账号格式错误." << endl;
+                _sleep(1000);
+                break;
+            }
             cout << "请输入用户姓名：";
             cin >> name;
+            if (!nameCheck(name)) {
+                cout << "输入字符超出限制." << endl;
+                _sleep(1000);
+                break;
+            }
             cout << "请输入用户密码：";
             cin >> password;
-            cout << "请输入用户余额：";
-            cin >> balance;
+            if (!passwordCheck(password)) {
+                cout << "密码格式错误." << endl;
+                _sleep(1000);
+                break;
+            }
+            balance = balanceCheck("请输入用户余额：");
             addUser(id, name, password, balance);
             break;
         }
@@ -242,9 +169,9 @@ void Admin::openMenu() {
             string id;
             cout << "请输入用户账号：";
             cin >> id;
-            if (!isExist(id)) {
+            if (!isExist(id, 1)) {
                 cout << "用户不存在." << endl;
-                system("pause");
+                _sleep(1000);
                 break;
             }
             deleteUser(id);
@@ -254,9 +181,9 @@ void Admin::openMenu() {
             string id;
             cout << "请输入用户账号：";
             cin >> id;
-            if (!isExist(id)) {
+            if (!isExist(id, 1)) {
                 cout << "用户不存在." << endl;
-                system("pause");
+                _sleep(1000);
                 break;
             }
             viewUser(id);
@@ -269,64 +196,122 @@ void Admin::openMenu() {
             break;
         }
         case 5: {
-            string id, name;
+            string id;
+            int option;
             cout << "请输入用户账号：";
             cin >> id;
-            if (!isExist(id)) {
-                cout << "用户不存在." << endl;
-                system("pause");
+            if (!idCheck(id)) {
+                cout << "账号格式错误." << endl;
+                _sleep(1000);
                 break;
             }
-            cout << "请输入用户姓名：";
-            cin >> name;
-            modifyUserName(id, name);
+            if (!isExist(id, 1)) {
+                cout << "用户不存在." << endl;
+                _sleep(1000);
+                break;
+            }
+            bool flag = true;
+            while (flag) {
+                system("cls");
+                cout << "1.修改用户名" << endl;
+                cout << "2.修改用户密码" << endl;
+                cout << "3.修改用户状态" << endl;
+                cout << "4.补办一卡通" << endl;
+                cout << "0.返回" << endl;
+                cout << "请输入选项：";
+                cin >> option;
+                switch (option) {
+                case 1: {
+                    string name;
+                    cout << "请输入新用户名：";
+                    cin >> name;
+                    if (!nameCheck(name)) {
+                        cout << "输入字符超出限制." << endl;
+                        _sleep(1000);
+                        break;
+                    }
+                    modifyUserName(id, name);
+                    break;
+                }
+                case 2: {
+                    string password;
+                    cout << "请输入新用户密码：";
+                    cin >> password;
+                    if (!passwordCheck(password)) {
+                        cout << "密码格式错误." << endl;
+                        _sleep(1000);
+                        break;
+                    }
+                    modifyUserPassword(id, password);
+                    break;
+                }
+                case 3: {
+                    changeUserStatus(id);
+                    break;
+                }
+                case 4: {
+                    reissueCard(id);
+                    break;
+                }
+                case 0: {
+                    flag = false;
+                    break;
+                }
+                default: {
+                    cout << "输入错误，请重新输入." << endl;
+                    break;
+                }
+                }
+            }
             break;
         }
         case 6: {
-            string id, password;
-            cout << "请输入用户账号：";
-            cin >> id;
-            if (!isExist(id)) {
-                cout << "用户不存在." << endl;
-                system("pause");
-                break;
+            int option;
+            bool flag = true;
+            while (flag) {
+                system("cls");
+                cout << "1.修改管理员姓名" << endl;
+                cout << "2.修改管理员密码" << endl;
+                cout << "0.返回" << endl;
+                cout << "请输入选项：";
+                cin >> option;
+                switch (option) {
+                case 1: {
+                    string name;
+                    cout << "请输入姓名：";
+                    cin >> name;
+                    if (!nameCheck(name)) {
+                        cout << "输入字符超出限制." << endl;
+                        _sleep(1000);
+                        break;
+                    }
+                    setName(name);
+                    saveData();
+                    break;
+                }
+                case 2: {
+                    string password;
+                    cout << "请输入密码：";
+                    cin >> password;
+                    if (!passwordCheck(password)) {
+                        cout << "密码格式错误." << endl;
+                        _sleep(1000);
+                        break;
+                    }
+                    setPassword(password);
+                    saveData();
+                    break;
+                }
+                case 0: {
+                    flag = false;
+                    break;
+                }
+                default: {
+                    cout << "输入错误，请重新输入." << endl;
+                    break;
+                }
+                }
             }
-            cout << "请输入用户密码：";
-            cin >> password;
-            modifyUserPassword(id, password);
-            break;
-        }
-        case 7: {
-            string id;
-            cout << "请输入用户账号：";
-            cin >> id;
-            if (!isExist(id)) {
-                cout << "用户不存在." << endl;
-                system("pause");
-                break;
-            }
-            changeUserStatus(id);
-            break;
-        }
-        case 8: {
-            string id;
-            cout << "请输入用户账号：";
-            cin >> id;
-            if (!isExist(id)) {
-                cout << "用户不存在." << endl;
-                system("pause");
-                break;
-            }
-            reissueCard(id);
-            break;
-        }
-        case 9: {
-            string name, password;
-            cout << "请输入管理员姓名：";
-            cin >> name;
-            cout << "请输入管理员密码：";
-            cin >> password;
-            modifyInfo(name, password);
             break;
         }
         case 0: {
@@ -341,4 +326,56 @@ void Admin::openMenu() {
         }
         }
     }
+}
+void Admin::loadData() {
+    ifstream infile("admins.dat", ios::binary | ios::in);
+    if (!infile) {
+        cerr << "Error: could not open infile admins.dat" << endl;
+        exit(1);
+    }
+    account acc;
+    for (int i = 0;!infile.eof();i++) {
+        infile.read((char*)&acc, sizeof(account));
+        if (acc.id == getId()) {
+            setPassword(acc.password);
+            break;
+        }
+    }
+    infile.close();
+    infile.open(getId() + ".dat", ios::binary | ios::in);
+    if (!infile) {
+        cerr << "Error: could not open infile " << getId() << ".dat" << endl;
+        exit(1);
+    }
+    adminData ad;
+    infile.read((char*)&ad, sizeof(adminData));
+    setName(ad.name);
+    infile.close();
+}
+void Admin::saveData() {
+    fstream outfile("admins.dat", ios::binary | ios::in | ios::out);
+    if (!outfile) {
+        cerr << "Error: could not open outfile admins.dat" << endl;
+        exit(1);
+    }
+    account acc;
+    for (int i = 0;!outfile.eof();i++) {
+        outfile.read((char*)&acc, sizeof(account));
+        if (acc.id == getId()) {
+            strcpy(acc.password, getPassword().c_str());
+            outfile.seekp(i * sizeof(account), ios::beg);
+            outfile.write((char*)&acc, sizeof(account));
+            break;
+        }
+    }
+    outfile.close();
+    outfile.open(getId() + ".dat", ios::binary | ios::out);
+    if (!outfile) {
+        cerr << "Error: could not open outfile " << getId() << ".dat" << endl;
+        exit(1);
+    }
+    adminData ad;
+    strcpy(ad.name, getName().c_str());
+    outfile.write((char*)&ad, sizeof(adminData));
+    outfile.close();
 }
