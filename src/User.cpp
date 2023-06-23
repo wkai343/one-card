@@ -1,4 +1,5 @@
 #include"User.h"
+#include"check.h"
 User::User(string id):Account(id) {}
 User::User(string id, string name, string password, float balance, int card, bool status) :Account(id, name, password), balance(balance), card(card), status(status) {}
 float User::getBalance() {
@@ -98,12 +99,51 @@ void User::openMenu() {
             system("pause");
             break;
         case 5: {
-            string newName, newPassword;
-            cout << "请输入新姓名：";
-            cin >> newName;
-            cout << "请输入新密码：";
-            cin >> newPassword;
-            modifyInfo(newName, newPassword);
+            int choice;
+            bool flag=true;
+            while(flag) {
+                cout<<"1.修改密码"<<endl;
+                cout<<"2.修改姓名"<<endl;
+                cout<<"0.退出"<<endl;
+                cout<<"请选择：";
+                cin>>choice;
+                switch(choice) {
+                    case 1: {
+                        string password;
+                        cout<<"请输入新密码：";
+                        cin>>password;
+                        if(!passwordCheck(password)) {
+                            cout << "密码格式错误." << endl;
+                            _sleep(1000);
+                            break;
+                        }
+                        setPassword(password);
+                        saveData();
+                        cout<<"密码已修改."<<endl;
+                        break;
+                    }
+                    case 2: {
+                        string name;
+                        cout<<"请输入新姓名：";
+                        cin>>name;
+                        if(!nameCheck(name)) {
+                            cout << "姓名格式错误." << endl;
+                            _sleep(1000);
+                            break;
+                        }
+                        setName(name);
+                        saveData();
+                        cout<<"姓名已修改."<<endl;
+                        break;
+                    }
+                    case 0:
+                        flag=false;
+                        break;
+                    default:
+                        cout<<"输入错误，请重新输入."<<endl;
+                        break;
+                }
+            }
             break;
         }
         case 0: {
