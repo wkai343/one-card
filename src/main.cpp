@@ -6,6 +6,7 @@ using namespace std;
 int main() {
     int choice;
     while (true) {
+        system("cls");
         cout << "一卡通信息管理系统" << endl;
         cout << "1.登录" << endl;
         cout << "2.退出" << endl;

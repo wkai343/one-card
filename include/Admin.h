@@ -7,8 +7,11 @@ public:
     Admin(string id);
     Admin(string id, string name, string password);
     void addUser(string id, string name, string password, float balance);
+    void importUsers(string fileName);
     void deleteUser(string id);
+    void deleteUsers(string fileName);
     void viewUser(string id);
+    void viewUser(string id, int);
     void viewAllUsers();
     void modifyUserName(string id, string name);
     void modifyUserPassword(string id, string password);

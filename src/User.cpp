@@ -121,9 +121,9 @@ void User::openMenu() {
 }
 void User::loadData() {
     ifstream infile("users.dat", ios::binary | ios::in);
-    if (!infile) {
-        cout << "文件打开失败！" << endl;
-        return;
+    if (!infile.is_open()) {
+        cout << "用户文件已丢失！" << endl;
+        exit(1);
     }
     account acc;
     for (int i = 0;!infile.eof();i++) {
