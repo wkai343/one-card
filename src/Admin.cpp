@@ -3,6 +3,19 @@
 #include"isExist.h"
 #include"check.h"
 #include<ctime>
+bool checkFile() {
+    ifstream infile("users.dat", ios::binary);
+    if (!infile) {
+        cerr << "文件打开失败！" << endl;
+        return false;
+    }
+    infile.seekg(0, ios::end);
+    if (infile.tellg() == 0) {
+        infile.close();
+        return false;
+    }
+    return true;
+}//判断文件是否为空
 int newCard(int n = 0) {
     int card;
     srand(time(NULL) + n);
@@ -101,9 +114,9 @@ void Admin::deleteUsers(string fileName) {
         return;
     }
     ofstream outfile2;
-    string id,name;
+    string id, name;
     int m = 0, n = 0;
-    for (; infile >> id >>name; ++n) {
+    for (; infile >> id >> name; ++n) {
         if (!idCheck(id)) {
             cout << "第" << n + 1 << "行账号格式错误，已跳过" << endl;
             ++m;
@@ -180,13 +193,6 @@ void Admin::viewAllUsers() {
         exit(1);
     }
     account acc;
-    //判断文件是否为空
-    infile.seekg(0, ios::end);
-    if (infile.tellg() == 0) {
-        cout << "无用户信息." << endl;
-        infile.close();
-        return;
-    }
     infile.seekg(0, ios::beg);
     cout << "账号\t\t姓名\t余额\t卡号\t\t状态" << endl;
     while (infile.read((char*)&acc, sizeof(account))) {
@@ -201,10 +207,11 @@ void Admin::viewInfo() {
 void Admin::openMenu() {
     int option;
     while (true) {
-        _sleep(1000);
+        _sleep(500);
         system("cls");
         cout << "一卡通信息管理系统" << endl << endl;
         viewInfo();
+        cout << endl;
         cout << "1.添加用户" << endl;
         cout << "2.批量导入用户" << endl;
         cout << "3.删除用户" << endl;
@@ -224,26 +231,22 @@ void Admin::openMenu() {
             cin >> id;
             if (isExist(id, 1)) {
                 cout << "用户已存在." << endl;
-                _sleep(1000);
                 break;
             }
             if (!idCheck(id)) {
                 cout << "账号格式错误." << endl;
-                _sleep(1000);
                 break;
             }
             cout << "请输入用户姓名：";
             cin >> name;
             if (!nameCheck(name)) {
                 cout << "输入字符超出限制." << endl;
-                _sleep(1000);
                 break;
             }
             cout << "请输入用户密码：";
             cin >> password;
             if (!passwordCheck(password)) {
                 cout << "密码格式错误." << endl;
-                _sleep(1000);
                 break;
             }
             balance = balanceCheck("请输入用户余额：");
@@ -259,18 +262,25 @@ void Admin::openMenu() {
             break;
         }
         case 3: {
+            if (!checkFile()) {
+                cout << "无用户信息." << endl;
+                break;
+            }
             string id;
             cout << "请输入用户账号：";
             cin >> id;
             if (!isExist(id, 1)) {
                 cout << "用户不存在." << endl;
-                _sleep(1000);
                 break;
             }
             deleteUser(id);
             break;
         }
         case 4: {
+            if (!checkFile()) {
+                cout << "无用户信息." << endl;
+                break;
+            }
             string filename;
             cout << "请输入文件名：";
             cin >> filename;
@@ -279,40 +289,52 @@ void Admin::openMenu() {
             break;
         }
         case 5: {
+            if (!checkFile()) {
+                cout << "无用户信息." << endl;
+                break;
+            }
             string id;
             cout << "请输入用户账号：";
             cin >> id;
             if (!isExist(id, 1)) {
                 cout << "用户不存在." << endl;
-                _sleep(1000);
                 break;
             }
+            system("cls");
             viewUser(id);
             system("pause");
             break;
         }
         case 6: {
+            if (!checkFile()) {
+                cout << "无用户信息." << endl;
+                break;
+            }
+            system("cls");
             viewAllUsers();
             system("pause");
             break;
         }
         case 7: {
+            if (!checkFile()) {
+                cout << "无用户信息." << endl;
+                break;
+            }
             string id;
             int option;
             cout << "请输入用户账号：";
             cin >> id;
             if (!idCheck(id)) {
                 cout << "账号格式错误." << endl;
-                _sleep(1000);
                 break;
             }
             if (!isExist(id, 1)) {
                 cout << "用户不存在." << endl;
-                _sleep(1000);
                 break;
             }
             bool flag = true;
             while (flag) {
+                _sleep(500);
                 system("cls");
                 cout << "1.修改用户名" << endl;
                 cout << "2.修改用户密码" << endl;
@@ -328,7 +350,6 @@ void Admin::openMenu() {
                     cin >> name;
                     if (!nameCheck(name)) {
                         cout << "输入字符超出限制." << endl;
-                        _sleep(1000);
                         break;
                     }
                     modifyUserName(id, name);
@@ -340,7 +361,6 @@ void Admin::openMenu() {
                     cin >> password;
                     if (!passwordCheck(password)) {
                         cout << "密码格式错误." << endl;
-                        _sleep(1000);
                         break;
                     }
                     modifyUserPassword(id, password);
@@ -370,6 +390,7 @@ void Admin::openMenu() {
             int option;
             bool flag = true;
             while (flag) {
+                _sleep(500);
                 system("cls");
                 cout << "1.修改管理员姓名" << endl;
                 cout << "2.修改管理员密码" << endl;
@@ -383,7 +404,6 @@ void Admin::openMenu() {
                     cin >> name;
                     if (!nameCheck(name)) {
                         cout << "输入字符超出限制." << endl;
-                        _sleep(1000);
                         break;
                     }
                     setName(name);
@@ -396,7 +416,6 @@ void Admin::openMenu() {
                     cin >> password;
                     if (!passwordCheck(password)) {
                         cout << "密码格式错误." << endl;
-                        _sleep(1000);
                         break;
                     }
                     setPassword(password);
@@ -416,9 +435,6 @@ void Admin::openMenu() {
             break;
         }
         case 0: {
-            system("cls");
-            cout << "欢迎下次使用！" << endl;
-            system("pause");
             return;
         }
         default: {

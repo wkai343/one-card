@@ -35,11 +35,11 @@ float balanceCheck(const char* prompt) {
         if (cin.fail()) {
             cin.clear();
             cin.ignore(1024, '\n');
-            cout << "è¾“å…¥é”™è¯¯ï¼Œè¯·é‡æ–°è¾“å…¥ï¼š";
+            cout << "ÊäÈë´íÎó£¬ÇëÖØÐÂÊäÈë£º";
         }
         else {
             if (balance < 0) {
-                cout << "è¾“å…¥é”™è¯¯ï¼Œè¯·é‡æ–°è¾“å…¥ï¼š";
+                cout << "ÊäÈë´íÎó£¬ÇëÖØÐÂÊäÈë£º";
                 continue;
             }
             cin.ignore(1024, '\n');

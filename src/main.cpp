@@ -17,9 +17,6 @@ int main() {
             Login();
             break;
         case 2:
-            system("cls");
-            cout << "欢迎下次使用！" << endl;
-            system("pause");
             return 0;
             break;
         default:

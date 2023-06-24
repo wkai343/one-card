@@ -1,8 +1,8 @@
 #pragma once
-#include <fstream>
-#include <cstdlib>
-#include "Admin.h"
-#include "User.h"
+#include<fstream>
+#include<cstdlib>
+#include"Admin.h"
+#include"User.h"
 #include"isExist.h"
 using namespace std;
 int n = 0;
@@ -53,11 +53,11 @@ int Login() {
         check -= 1;
         cout << "ÇëÊäÈëÃÜÂë£º";
         cin >> password;
-        if(!checkPassword(id, password, check)) {
+        if (!checkPassword(id, password, check)) {
             cout << "ÃÜÂë´íÎó£¡" << endl;
             continue;
         }
-        if(check) {
+        if (check) {
             User user(id);
             user.loadData();
             user.openMenu();
