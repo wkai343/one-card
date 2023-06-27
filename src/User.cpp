@@ -29,34 +29,173 @@ void User::addRecord(float amount, Record::TYPE type) {
     outfile.close();
     recordNum++;
 }
-void User::viewRecords() {
-    ifstream infile(getId() + ".dat", ios::binary);
-    if (!infile) {
-        cerr << "文件打开失败！" << endl;
-        return;
+void User::viewRecord(const Record& record) {
+    cout << record.ti.year << "-" << record.ti.month << "-" << record.ti.day << " " << record.ti.hour << ":" << record.ti.minute << ":" << record.ti.second << " ";
+    switch (record.type) {
+    case Record::RECHARGE:
+        cout << "充值 ";
+        break;
+    case Record::BATH:
+        cout << "洗浴 ";
+        break;
+    case Record::DINE:
+        cout << "餐饮 ";
+        break;
+    case Record::SHOP:
+        cout << "购物 ";
+        break;
     }
-    infile.seekg(sizeof(userData));
-    Record record;
-    cout << "记录如下：" << endl;
-    while (infile.read((char*)&record, sizeof(Record))) {
-        cout << record.ti.year << "-" << record.ti.month << "-" << record.ti.day << " " << record.ti.hour << ":" << record.ti.minute << ":" << record.ti.second << " ";
-        switch (record.type) {
-        case Record::RECHARGE:
-            cout << "充值 ";
-            break;
-        case Record::BATH:
-            cout << "洗浴 ";
-            break;
-        case Record::DINE:
-            cout << "餐饮 ";
-            break;
-        case Record::SHOP:
-            cout << "购物 ";
+    cout << record.amount << " 元" << endl;
+}
+void User::viewRecords() {
+    int choice;
+    while (true) {
+        _sleep(500);
+        system("cls");
+        cout << "1.全部记录" << endl;
+        cout << "2.按类型查询" << endl;
+        cout << "3.按金额查询" << endl;
+        cout << "4.按时间查询" << endl;
+        cout << "0.返回" << endl;
+        cout << "请选择：";
+        cin >> choice;
+        switch (choice) {
+        case 1: {
+            system("cls");
+            ifstream infile(getId() + ".dat", ios::binary | ios::in);
+            if (!infile) {
+                cerr << "文件打开失败！" << endl;
+                exit(1);
+            }
+            Record record;
+            infile.seekg(-sizeof(Record), ios::end);
+            for (int i = 0; i < recordNum; i++) {
+                infile.read((char*)&record, sizeof(Record));
+                viewRecord(record);
+                infile.seekg(-2 * sizeof(Record), ios::cur);
+            }
+            infile.close();
+            system("pause");
             break;
         }
-        cout << record.amount << " 元" << endl;
+        case 2: {
+            system("cls");
+            int type;
+            while (true) {
+                cout << "1.充值" << endl;
+                cout << "2.消费" << endl;
+                cout << "3.洗浴" << endl;
+                cout << "4.餐饮" << endl;
+                cout << "5.购物" << endl;
+                cout << "0.返回" << endl;
+                cout << "请选择：";
+                cin >> type;
+                if (type >= 0 && type <= 5) {
+                    break;
+                }
+                else {
+                    cout << "输入错误，请重新输入！" << endl;
+                }
+            }
+            if (type == 0)break;
+            ifstream infile(getId() + ".dat", ios::binary | ios::in);
+            if (!infile) {
+                cerr << "文件打开失败！" << endl;
+                exit(1);
+            }
+            system("cls");
+            Record record;
+            infile.seekg(sizeof(userData));
+            while (infile.read((char*)&record, sizeof(Record))) {
+                if (type == 1 && record.type == Record::RECHARGE) {
+                    viewRecord(record);
+                }
+                else if (type == 2 && (record.type == Record::BATH || record.type == Record::DINE || record.type == Record::SHOP)) {
+                    viewRecord(record);
+                }
+                else if (type == 3 && record.type == Record::BATH) {
+                    viewRecord(record);
+                }
+                else if (type == 4 && record.type == Record::DINE) {
+                    viewRecord(record);
+                }
+                else if (type == 5 && record.type == Record::SHOP) {
+                    viewRecord(record);
+                }
+            }
+            infile.close();
+            system("pause");
+            break;
+        }
+        case 3: {
+            float amount;
+            cout << "请输入金额：";
+            cin >> amount;
+            ifstream infile(getId() + ".dat", ios::binary | ios::in);
+            if (!infile) {
+                cerr << "文件打开失败！" << endl;
+                exit(1);
+            }
+            system("cls");
+            Record record;
+            infile.seekg(-sizeof(Record), ios::end);
+            for (int i = 0; i < recordNum; i++) {
+                infile.read((char*)&record, sizeof(Record));
+                if (record.amount == amount) {
+                    viewRecord(record);
+                }
+                infile.seekg(-2 * sizeof(Record), ios::cur);
+            }
+            infile.close();
+            system("pause");
+            break;
+        }
+        case 4: {
+            Time time1, time2;
+            cout << "请输入起始时间：" << endl;
+            cout << "年：";
+            cin >> time1.year;
+            cout << "月：";
+            cin >> time1.month;
+            cout << "日：";
+            cin >> time1.day;
+            time1.hour = 0;
+            time1.minute = 0;
+            time1.second = 0;
+            cout << "请输入结束时间：" << endl;
+            cout << "年：";
+            cin >> time2.year;
+            cout << "月：";
+            cin >> time2.month;
+            cout << "日：";
+            cin >> time2.day;
+            time2.hour = 23;
+            time2.minute = 59;
+            time2.second = 59;
+            ifstream infile(getId() + ".dat", ios::binary | ios::in);
+            if (!infile) {
+                cerr << "文件打开失败！" << endl;
+                exit(1);
+            }
+            system("cls");
+            Record record;
+            infile.seekg(sizeof(userData));
+            while (infile.read((char*)&record, sizeof(Record))) {
+                if (record.ti >= time1 && record.ti <= time2) {
+                    viewRecord(record);
+                }
+            }
+            infile.close();
+            system("pause");
+            break;
+        }
+        case 0:
+            return;
+        default:
+            cout << "输入错误，请重新输入！" << endl;
+            break;
+        }
     }
-    infile.close();
 }
 void User::changeStatus() {
     status = !status;
@@ -89,6 +228,7 @@ void User::openMenu() {
         switch (choice) {
         case 1:
             changeStatus();
+            saveData();
             break;
         case 2: {
             if (status) {
@@ -109,12 +249,11 @@ void User::openMenu() {
                 cin >> choice;
                 switch (choice) {
                 case 1: {
-                    cout << "请输入消费金额：";
                     float amount;
-                    cin >> amount;
+                    amount = balanceCheck("请输入消费金额：");
                     if (balance >= amount) {
                         consume(amount);
-                        addRecord(amount, Record::BATH);
+                        if (amount > 0) addRecord(amount, Record::BATH);
                         saveData();
                     }
                     else {
@@ -123,12 +262,11 @@ void User::openMenu() {
                     break;
                 }
                 case 2: {
-                    cout << "请输入消费金额：";
                     float amount;
-                    cin >> amount;
+                    amount = balanceCheck("请输入消费金额：");
                     if (balance >= amount) {
                         consume(amount);
-                        addRecord(amount, Record::DINE);
+                        if (amount > 0) addRecord(amount, Record::DINE);
                         saveData();
                     }
                     else {
@@ -137,12 +275,11 @@ void User::openMenu() {
                     break;
                 }
                 case 3: {
-                    cout << "请输入消费金额：";
                     float amount;
-                    cin >> amount;
+                    amount = balanceCheck("请输入消费金额：");
                     if (balance >= amount) {
                         consume(amount);
-                        addRecord(amount, Record::SHOP);
+                        if (amount > 0) addRecord(amount, Record::SHOP);
                         saveData();
                     }
                     else {
@@ -166,18 +303,16 @@ void User::openMenu() {
                 system("pause");
                 break;
             }
-            cout << "请输入充值金额：";
             float amount;
-            cin >> amount;
+            amount = balanceCheck("请输入充值金额：");
             recharge(amount);
-            addRecord(amount, Record::RECHARGE);
+            if (amount > 0) addRecord(amount, Record::RECHARGE);
             saveData();
             break;
         }
         case 4:
             system("cls");
             viewRecords();
-            system("pause");
             break;
         case 5: {
             system("cls");
@@ -185,6 +320,7 @@ void User::openMenu() {
             bool flag = true;
             while (flag) {
                 _sleep(500);
+                system("cls");
                 cout << "1.修改密码" << endl;
                 cout << "2.修改姓名" << endl;
                 cout << "0.退出" << endl;
@@ -193,6 +329,12 @@ void User::openMenu() {
                 switch (choice) {
                 case 1: {
                     string password;
+                    cout << "请输入旧密码：";
+                    cin >> password;
+                    if (password != getPassword()) {
+                        cout << "密码错误." << endl;
+                        break;
+                    }
                     cout << "请输入新密码：";
                     cin >> password;
                     if (!passwordCheck(password)) {

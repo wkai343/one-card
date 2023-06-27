@@ -18,13 +18,45 @@ struct Time {
         minute = local->tm_min;
         second = local->tm_sec;
     }
+    bool operator>=(const Time& ti) {
+        if (year >= ti.year) {
+            if (month >= ti.month) {
+                if (day >= ti.day) {
+                    if (hour >= ti.hour) {
+                        if (minute >= ti.minute) {
+                            if (second >= ti.second) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    bool operator<=(const Time& ti) {
+        if (year <= ti.year) {
+            if (month <= ti.month) {
+                if (day <= ti.day) {
+                    if (hour <= ti.hour) {
+                        if (minute <= ti.minute) {
+                            if (second <= ti.second) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 };
 struct Record {
     float amount = 0;
-    enum TYPE{ RECHARGE, BATH, DINE, SHOP } type;
+    enum TYPE { RECHARGE, BATH, DINE, SHOP } type;
     Time ti;
     Record() {}
-    Record(float amount,TYPE type) {
+    Record(float amount, TYPE type) {
         this->amount = amount;
         this->type = type;
     }
@@ -46,6 +78,7 @@ public:
     void consume(float amount);
     void recharge(float amount);
     void addRecord(float amount, Record::TYPE type);
+    void viewRecord(const Record& record);
     void viewRecords();
     void changeStatus();
     virtual void openMenu();

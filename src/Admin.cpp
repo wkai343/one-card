@@ -14,6 +14,7 @@ bool checkFile() {
         infile.close();
         return false;
     }
+    infile.close();
     return true;
 }//判断文件是否为空
 int newCard(int n = 0) {
