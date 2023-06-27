@@ -48,19 +48,24 @@ void User::viewRecord(const Record& record) {
     cout << record.amount << " 元" << endl;
 }
 void User::viewRecords() {
-    int choice;
+    char choice;
     while (true) {
         _sleep(500);
         system("cls");
+        cout << "一卡通信息管理系统" << endl << endl;
+        viewInfo();
+        cout << endl;
         cout << "1.全部记录" << endl;
         cout << "2.按类型查询" << endl;
         cout << "3.按金额查询" << endl;
         cout << "4.按时间查询" << endl;
         cout << "0.返回" << endl;
         cout << "请选择：";
-        cin >> choice;
+        if ((choice = cin.get()) == '\n') {
+            continue;
+        }
         switch (choice) {
-        case 1: {
+        case '1': {
             system("cls");
             ifstream infile(getId() + ".dat", ios::binary | ios::in);
             if (!infile) {
@@ -78,7 +83,7 @@ void User::viewRecords() {
             system("pause");
             break;
         }
-        case 2: {
+        case '2': {
             system("cls");
             int type;
             while (true) {
@@ -127,7 +132,7 @@ void User::viewRecords() {
             system("pause");
             break;
         }
-        case 3: {
+        case '3': {
             float amount;
             cout << "请输入金额：";
             cin >> amount;
@@ -150,7 +155,7 @@ void User::viewRecords() {
             system("pause");
             break;
         }
-        case 4: {
+        case '4': {
             Time time1, time2;
             cout << "请输入起始时间：" << endl;
             cout << "年：";
@@ -189,7 +194,7 @@ void User::viewRecords() {
             system("pause");
             break;
         }
-        case 0:
+        case '0':
             return;
         default:
             cout << "输入错误，请重新输入！" << endl;
@@ -210,7 +215,7 @@ void User::viewInfo() {
     cout << "状态: " << (status ? "已挂失" : "正常") << endl;
 }
 void User::openMenu() {
-    int choice;
+    char choice;
     while (true) {
         _sleep(500);
         system("cls");
@@ -224,13 +229,15 @@ void User::openMenu() {
         cout << "5.修改信息" << endl;
         cout << "0.退出" << endl;
         cout << "请选择：";
-        cin >> choice;
+        if ((choice = cin.get()) == '\n') {
+            continue;
+        }
         switch (choice) {
-        case 1:
+        case '1':
             changeStatus();
             saveData();
             break;
-        case 2: {
+        case '2': {
             if (status) {
                 cout << "已挂失，无法消费." << endl;
                 system("pause");
@@ -241,14 +248,19 @@ void User::openMenu() {
             while (flag) {
                 _sleep(500);
                 system("cls");
+                cout << "一卡通信息管理系统" << endl << endl;
+                viewInfo();
+                cout << endl;
                 cout << "1.洗浴" << endl;
                 cout << "2.餐饮" << endl;
                 cout << "3.购物" << endl;
                 cout << "0.退出" << endl;
                 cout << "请选择：";
-                cin >> choice;
+                if ((choice = cin.get()) == '\n') {
+                    continue;
+                }
                 switch (choice) {
-                case 1: {
+                case '1': {
                     float amount;
                     amount = balanceCheck("请输入消费金额：");
                     if (balance >= amount) {
@@ -261,7 +273,7 @@ void User::openMenu() {
                     }
                     break;
                 }
-                case 2: {
+                case '2': {
                     float amount;
                     amount = balanceCheck("请输入消费金额：");
                     if (balance >= amount) {
@@ -274,7 +286,7 @@ void User::openMenu() {
                     }
                     break;
                 }
-                case 3: {
+                case '3': {
                     float amount;
                     amount = balanceCheck("请输入消费金额：");
                     if (balance >= amount) {
@@ -287,7 +299,7 @@ void User::openMenu() {
                     }
                     break;
                 }
-                case 0:
+                case '0':
                     flag = false;
                     break;
                 default:
@@ -297,7 +309,7 @@ void User::openMenu() {
             }
             break;
         }
-        case 3: {
+        case '3': {
             if (status) {
                 cout << "已挂失，无法充值." << endl;
                 system("pause");
@@ -310,24 +322,28 @@ void User::openMenu() {
             saveData();
             break;
         }
-        case 4:
+        case '4':
             system("cls");
             viewRecords();
             break;
-        case 5: {
+        case '5': {
             system("cls");
-            int choice;
             bool flag = true;
             while (flag) {
                 _sleep(500);
                 system("cls");
+                cout << "一卡通信息管理系统" << endl << endl;
+                viewInfo();
+                cout << endl;
                 cout << "1.修改密码" << endl;
                 cout << "2.修改姓名" << endl;
                 cout << "0.退出" << endl;
                 cout << "请选择：";
-                cin >> choice;
+                if ((choice = cin.get()) == '\n') {
+                    continue;
+                }
                 switch (choice) {
-                case 1: {
+                case '1': {
                     string password;
                     cout << "请输入旧密码：";
                     cin >> password;
@@ -346,7 +362,7 @@ void User::openMenu() {
                     cout << "密码已修改." << endl;
                     break;
                 }
-                case 2: {
+                case '2': {
                     string name;
                     cout << "请输入新姓名：";
                     cin >> name;
@@ -359,7 +375,7 @@ void User::openMenu() {
                     cout << "姓名已修改." << endl;
                     break;
                 }
-                case 0:
+                case '0':
                     flag = false;
                     break;
                 default:
@@ -369,7 +385,7 @@ void User::openMenu() {
             }
             break;
         }
-        case 0: {
+        case '0': {
             return;
             break;
         }

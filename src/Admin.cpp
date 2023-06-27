@@ -206,7 +206,7 @@ void Admin::viewInfo() {
     cout << "姓名：" << getName() << endl;
 }
 void Admin::openMenu() {
-    int option;
+    char option;
     while (true) {
         _sleep(500);
         system("cls");
@@ -214,18 +214,19 @@ void Admin::openMenu() {
         viewInfo();
         cout << endl;
         cout << "1.添加用户" << endl;
-        cout << "2.批量导入用户" << endl;
-        cout << "3.删除用户" << endl;
-        cout << "4.批量删除用户" << endl;
-        cout << "5.查看用户" << endl;
-        cout << "6.查看所有用户" << endl;
-        cout << "7.修改用户信息" << endl;
-        cout << "8.修改管理员信息" << endl;
+        cout << "2.删除用户" << endl;
+        cout << "3.批量导入/删除用户" << endl;
+        cout << "4.查看用户" << endl;
+        cout << "5.查看所有用户" << endl;
+        cout << "6.修改用户信息" << endl;
+        cout << "7.修改管理员信息" << endl;
         cout << "0.退出" << endl;
         cout << "请输入选项：";
-        cin >> option;
+        if ((option = cin.get()) == '\n') {
+            continue;
+        }
         switch (option) {
-        case 1: {
+        case '1': {
             string id, name, password;
             float balance;
             cout << "请输入用户账号：";
@@ -254,15 +255,7 @@ void Admin::openMenu() {
             addUser(id, name, password, balance);
             break;
         }
-        case 2: {
-            string filename;
-            cout << "请输入文件名：";
-            cin >> filename;
-            importUsers(filename);
-            system("pause");
-            break;
-        }
-        case 3: {
+        case '2': {
             if (!checkFile()) {
                 cout << "无用户信息." << endl;
                 break;
@@ -277,19 +270,55 @@ void Admin::openMenu() {
             deleteUser(id);
             break;
         }
-        case 4: {
-            if (!checkFile()) {
-                cout << "无用户信息." << endl;
-                break;
+        case '3': {
+            bool flag=true;
+            while(flag) {
+                _sleep(500);
+                system("cls");
+                cout << "一卡通信息管理系统" << endl << endl;
+                viewInfo();
+                cout << endl;
+                cout <<"1.批量导入用户" << endl;
+                cout <<"2.批量删除用户" << endl;
+                cout <<"0.返回" << endl;
+                cout <<"请输入选项：";
+                if ((option = cin.get()) == '\n') {
+                    continue;
+                }
+                switch (option) {
+                    case '1': {
+                        string filename;
+                        cout << "请输入文件名：";
+                        cin >> filename;
+                        importUsers(filename);
+                        system("pause");
+                        break;
+                    }
+                    case '2': {
+                        if (!checkFile()) {
+                            cout << "无用户信息." << endl;
+                            break;
+                        }
+                        string filename;
+                        cout << "请输入文件名：";
+                        cin >> filename;
+                        deleteUsers(filename);
+                        system("pause");
+                        break;
+                    }
+                    case '0': {
+                        flag=false;
+                        break;
+                    }
+                    default: {
+                        cout << "输入错误，请重新输入." << endl;
+                        break;
+                    }
+                }
             }
-            string filename;
-            cout << "请输入文件名：";
-            cin >> filename;
-            deleteUsers(filename);
-            system("pause");
             break;
         }
-        case 5: {
+        case '4': {
             if (!checkFile()) {
                 cout << "无用户信息." << endl;
                 break;
@@ -306,7 +335,7 @@ void Admin::openMenu() {
             system("pause");
             break;
         }
-        case 6: {
+        case '5': {
             if (!checkFile()) {
                 cout << "无用户信息." << endl;
                 break;
@@ -316,13 +345,12 @@ void Admin::openMenu() {
             system("pause");
             break;
         }
-        case 7: {
+        case '6': {
             if (!checkFile()) {
                 cout << "无用户信息." << endl;
                 break;
             }
             string id;
-            int option;
             cout << "请输入用户账号：";
             cin >> id;
             if (!idCheck(id)) {
@@ -337,15 +365,20 @@ void Admin::openMenu() {
             while (flag) {
                 _sleep(500);
                 system("cls");
+                cout << "一卡通信息管理系统" << endl << endl;
+                viewInfo();
+                cout << endl;
                 cout << "1.修改用户名" << endl;
                 cout << "2.修改用户密码" << endl;
                 cout << "3.修改用户状态" << endl;
                 cout << "4.补办一卡通" << endl;
                 cout << "0.返回" << endl;
                 cout << "请输入选项：";
-                cin >> option;
+                if ((option = cin.get()) == '\n') {
+                    continue;
+                }
                 switch (option) {
-                case 1: {
+                case '1': {
                     string name;
                     cout << "请输入新用户名：";
                     cin >> name;
@@ -356,7 +389,7 @@ void Admin::openMenu() {
                     modifyUserName(id, name);
                     break;
                 }
-                case 2: {
+                case '2': {
                     string password;
                     cout << "请输入新用户密码：";
                     cin >> password;
@@ -367,15 +400,15 @@ void Admin::openMenu() {
                     modifyUserPassword(id, password);
                     break;
                 }
-                case 3: {
+                case '3': {
                     changeUserStatus(id);
                     break;
                 }
-                case 4: {
+                case '4': {
                     reissueCard(id);
                     break;
                 }
-                case 0: {
+                case '0': {
                     flag = false;
                     break;
                 }
@@ -387,19 +420,23 @@ void Admin::openMenu() {
             }
             break;
         }
-        case 8: {
-            int option;
+        case '7': {
             bool flag = true;
             while (flag) {
                 _sleep(500);
                 system("cls");
+                cout << "一卡通信息管理系统" << endl << endl;
+                viewInfo();
+                cout << endl;
                 cout << "1.修改管理员姓名" << endl;
                 cout << "2.修改管理员密码" << endl;
                 cout << "0.返回" << endl;
                 cout << "请输入选项：";
-                cin >> option;
+                if ((option = cin.get()) == '\n') {
+                    continue;
+                }
                 switch (option) {
-                case 1: {
+                case '1': {
                     string name;
                     cout << "请输入姓名：";
                     cin >> name;
@@ -411,7 +448,7 @@ void Admin::openMenu() {
                     saveData();
                     break;
                 }
-                case 2: {
+                case '2': {
                     string password;
                     cout << "请输入密码：";
                     cin >> password;
@@ -423,7 +460,7 @@ void Admin::openMenu() {
                     saveData();
                     break;
                 }
-                case 0: {
+                case '0': {
                     flag = false;
                     break;
                 }
@@ -435,7 +472,7 @@ void Admin::openMenu() {
             }
             break;
         }
-        case 0: {
+        case '0': {
             return;
         }
         default: {

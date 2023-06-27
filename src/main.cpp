@@ -4,19 +4,21 @@
 #include<iostream>
 using namespace std;
 int main() {
-    int choice;
+    char choice;
     while (true) {
         system("cls");
         cout << "一卡通信息管理系统" << endl;
         cout << "1.登录" << endl;
         cout << "2.退出" << endl;
         cout << "请选择：";
-        cin >> choice;
+        if((choice=cin.get())=='\n') {
+            continue;
+        }
         switch (choice) {
-        case 1:
+        case '1':
             Login();
             break;
-        case 2:
+        case '2':
             return 0;
             break;
         default:
