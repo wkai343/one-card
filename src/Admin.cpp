@@ -271,49 +271,49 @@ void Admin::openMenu() {
             break;
         }
         case '3': {
-            bool flag=true;
-            while(flag) {
+            bool flag = true;
+            while (flag) {
                 _sleep(500);
                 system("cls");
                 cout << "一卡通信息管理系统" << endl << endl;
                 viewInfo();
                 cout << endl;
-                cout <<"1.批量导入用户" << endl;
-                cout <<"2.批量删除用户" << endl;
-                cout <<"0.返回" << endl;
-                cout <<"请输入选项：";
+                cout << "1.批量导入用户" << endl;
+                cout << "2.批量删除用户" << endl;
+                cout << "0.返回" << endl;
+                cout << "请输入选项：";
                 if ((option = cin.get()) == '\n') {
                     continue;
                 }
                 switch (option) {
-                    case '1': {
-                        string filename;
-                        cout << "请输入文件名：";
-                        cin >> filename;
-                        importUsers(filename);
-                        system("pause");
+                case '1': {
+                    string filename;
+                    cout << "请输入文件名：";
+                    cin >> filename;
+                    importUsers(filename);
+                    system("pause");
+                    break;
+                }
+                case '2': {
+                    if (!checkFile()) {
+                        cout << "无用户信息." << endl;
                         break;
                     }
-                    case '2': {
-                        if (!checkFile()) {
-                            cout << "无用户信息." << endl;
-                            break;
-                        }
-                        string filename;
-                        cout << "请输入文件名：";
-                        cin >> filename;
-                        deleteUsers(filename);
-                        system("pause");
-                        break;
-                    }
-                    case '0': {
-                        flag=false;
-                        break;
-                    }
-                    default: {
-                        cout << "输入错误，请重新输入." << endl;
-                        break;
-                    }
+                    string filename;
+                    cout << "请输入文件名：";
+                    cin >> filename;
+                    deleteUsers(filename);
+                    system("pause");
+                    break;
+                }
+                case '0': {
+                    flag = false;
+                    break;
+                }
+                default: {
+                    cout << "输入错误，请重新输入." << endl;
+                    break;
+                }
                 }
             }
             break;
@@ -323,16 +323,155 @@ void Admin::openMenu() {
                 cout << "无用户信息." << endl;
                 break;
             }
-            string id;
-            cout << "请输入用户账号：";
-            cin >> id;
-            if (!isExist(id, 1)) {
-                cout << "用户不存在." << endl;
-                break;
+            bool flag = true;
+            while (flag) {
+                _sleep(500);
+                system("cls");
+                cout << "一卡通信息管理系统" << endl << endl;
+                viewInfo();
+                cout << endl;
+                cout << "1.按账号查找" << endl;
+                cout << "2.按姓名查找" << endl;
+                cout << "3.按卡号查找" << endl;
+                cout << "4.按状态查找" << endl;
+                cout << "0.返回" << endl;
+                cout << "请输入选项：";
+                if ((option = cin.get()) == '\n') {
+                    continue;
+                }
+                switch (option) {
+                case '1': {
+                    string id;
+                    cout << "请输入用户账号：";
+                    cin >> id;
+                    if (!isExist(id, 1)) {
+                        cout << "用户不存在." << endl;
+                        break;
+                    }
+                    system("cls");
+                    viewUser(id);
+                    system("pause");
+                    break;
+                }
+                case '2': {
+                    string name;
+                    cout << "请输入用户姓名：";
+                    cin >> name;
+                    ifstream infile1("users.dat", ios::binary | ios::in), infile2;
+                    if (!infile1) {
+                        cerr << "无法打开文件." << endl;
+                        exit(1);
+                    }
+                    system("cls");
+                    account acc;
+                    userData usr;
+                    int n = 0;
+                    while (infile1.read((char*)&acc, sizeof(account))) {
+                        infile2.open((string)acc.id + ".dat", ios::binary | ios::in);
+                        if (!infile2) {
+                            cerr << "无法打开文件." << endl;
+                            exit(1);
+                        }
+                        infile2.read((char*)&usr, sizeof(userData));
+                        infile2.close();
+                        if (usr.name == name) {
+                            viewUser(acc.id);
+                            n++;
+                        }
+                    }
+                    infile1.close();
+                    if (n > 0) system("pause");
+                    else cout << "用户不存在." << endl;
+                    break;
+                }
+                case '3': {
+                    int card;
+                    cout << "请输入用户卡号：";
+                    cin >> card;
+                    ifstream infile1("users.dat", ios::binary | ios::in), infile2;
+                    if (!infile1) {
+                        cerr << "无法打开文件." << endl;
+                        exit(1);
+                    }
+                    system("cls");
+                    account acc;
+                    userData usr;
+                    int n = 0;
+                    while (infile1.read((char*)&acc, sizeof(account))) {
+                        infile2.open((string)acc.id + ".dat", ios::binary | ios::in);
+                        if (!infile2) {
+                            cerr << "无法打开文件." << endl;
+                            exit(1);
+                        }
+                        infile2.read((char*)&usr, sizeof(userData));
+                        infile2.close();
+                        if (usr.card == card) {
+                            viewUser(acc.id);
+                            n++;
+                        }
+                    }
+                    infile1.close();
+                    if (n > 0) system("pause");
+                    else cout << "用户不存在." << endl;
+                    break;
+                }
+                case '4': {
+                    while (true) {
+                        _sleep(500);
+                        system("cls");
+                        cout << "一卡通信息管理系统" << endl << endl;
+                        viewInfo();
+                        cout << endl;
+                        cout << "1.正常" << endl;
+                        cout << "2.挂失" << endl;
+                        cout << "0.返回" << endl;
+                        cout << "请输入选项：";
+                        if ((option = cin.get()) == '\n') {
+                            continue;
+                        }
+                        if (option >= '0' && option <= '2') break;
+                        else cout << "输入错误，请重新输入." << endl;
+                    }
+                    if (option == '0') break;
+                    ifstream infile1("users.dat", ios::binary | ios::in), infile2;
+                    if (!infile1) {
+                        cerr << "无法打开文件." << endl;
+                        exit(1);
+                    }
+                    system("cls");
+                    account acc;
+                    userData usr;
+                    bool status = option - '1';
+                    int n = 0;
+                    cout << "账号\t\t姓名\t余额\t卡号\t\t状态" << endl;
+                    while (infile1.read((char*)&acc, sizeof(account))) {
+                        infile2.open((string)acc.id + ".dat", ios::binary | ios::in);
+                        if (!infile2) {
+                            cerr << "无法打开文件." << endl;
+                            exit(1);
+                        }
+                        infile2.read((char*)&usr, sizeof(userData));
+                        infile2.close();
+                        if (usr.status == status) {
+                            viewUser(acc.id, 0);
+                            n++;
+                        }
+                    }
+                    infile1.close();
+                    if (n > 0) system("pause");
+                    else cout << "用户不存在." << endl;
+                    break;
+                }
+                case '0': {
+                    flag = false;
+                    break;
+                }
+                default: {
+                    cout << "输入错误，请重新输入." << endl;
+                    break;
+                }
+                }
             }
-            system("cls");
-            viewUser(id);
-            system("pause");
             break;
         }
         case '5': {

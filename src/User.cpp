@@ -85,7 +85,7 @@ void User::viewRecords() {
         }
         case '2': {
             system("cls");
-            int type;
+            char type;
             while (true) {
                 cout << "1.充值" << endl;
                 cout << "2.消费" << endl;
@@ -94,15 +94,17 @@ void User::viewRecords() {
                 cout << "5.购物" << endl;
                 cout << "0.返回" << endl;
                 cout << "请选择：";
-                cin >> type;
-                if (type >= 0 && type <= 5) {
+                if ((type = cin.get()) == '\n') {
+                    continue;
+                }
+                if (type >= '0' && type <= '5') {
                     break;
                 }
                 else {
                     cout << "输入错误，请重新输入！" << endl;
                 }
             }
-            if (type == 0)break;
+            if (type == '0')break;
             ifstream infile(getId() + ".dat", ios::binary | ios::in);
             if (!infile) {
                 cerr << "文件打开失败！" << endl;
@@ -112,19 +114,19 @@ void User::viewRecords() {
             Record record;
             infile.seekg(sizeof(userData));
             while (infile.read((char*)&record, sizeof(Record))) {
-                if (type == 1 && record.type == Record::RECHARGE) {
+                if (type == '1' && record.type == Record::RECHARGE) {
                     viewRecord(record);
                 }
-                else if (type == 2 && (record.type == Record::BATH || record.type == Record::DINE || record.type == Record::SHOP)) {
+                else if (type == '2' && (record.type == Record::BATH || record.type == Record::DINE || record.type == Record::SHOP)) {
                     viewRecord(record);
                 }
-                else if (type == 3 && record.type == Record::BATH) {
+                else if (type == '3' && record.type == Record::BATH) {
                     viewRecord(record);
                 }
-                else if (type == 4 && record.type == Record::DINE) {
+                else if (type == '4' && record.type == Record::DINE) {
                     viewRecord(record);
                 }
-                else if (type == 5 && record.type == Record::SHOP) {
+                else if (type == '5' && record.type == Record::SHOP) {
                     viewRecord(record);
                 }
             }
