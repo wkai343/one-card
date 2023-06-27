@@ -155,7 +155,7 @@ void Admin::viewUser(string id, int) {
     }
     userData usr;
     infile.read((char*)&usr, sizeof(userData));
-    cout << id << '\t' << usr.name << '\t' << usr.balance << '\t' << usr.card << '\t' << (usr.status ? "已挂失" : "正常") << endl;
+    cout << id << '\t' << usr.name << '\t' << usr.balance << '\t' << usr.card << '\t' << (usr.status ? "挂失" : "正常") << endl;
     infile.close();
 }
 void Admin::modifyUserName(string id, string name) {
@@ -179,9 +179,10 @@ void Admin::changeUserStatus(string id) {
     usr.saveData();
     cout << "用户信息已修改." << endl;
 }
-void Admin::reissueCard(string id) {
+void Admin::reissueCard(string id, float money = 0) {
     User usr(id);
     usr.loadData();
+    usr.balance -= money;
     usr.card = newCard();
     usr.status = false;
     usr.saveData();
@@ -216,10 +217,11 @@ void Admin::openMenu() {
         cout << "1.添加用户" << endl;
         cout << "2.删除用户" << endl;
         cout << "3.批量导入/删除用户" << endl;
-        cout << "4.查看用户" << endl;
+        cout << "4.查找用户" << endl;
         cout << "5.查看所有用户" << endl;
         cout << "6.修改用户信息" << endl;
         cout << "7.修改管理员信息" << endl;
+        cout << "8.导出用户信息" << endl;
         cout << "0.退出" << endl;
         cout << "请输入选项：";
         if ((option = cin.get()) == '\n') {
@@ -544,7 +546,9 @@ void Admin::openMenu() {
                     break;
                 }
                 case '4': {
-                    reissueCard(id);
+                    float money;
+                    money=balanceCheck("请输入补办费用：");
+                    reissueCard(id, money);
                     break;
                 }
                 case '0': {
@@ -611,6 +615,113 @@ void Admin::openMenu() {
             }
             break;
         }
+        case '8': {
+            while (true) {
+                _sleep(500);
+                system("cls");
+                bool id, password, name, balance, card, status;
+                cin.ignore(1024, '\n');
+                cout << "是否导出账号(Y/n)：";
+                if ((option = cin.get()) == '\n') {
+                    id = true;
+                }
+                else if (option == 'Y' || option == 'y') {
+                    id = true;
+                    cin.ignore();
+                }
+                else if (option == 'N' || option == 'n') {
+                    id = false;
+                    cin.ignore();
+                }
+                else {
+                    cout << "输入错误，请重新输入." << endl;
+                    continue;
+                }
+                cout << "是否导出密码(Y/n)：";
+                if ((option = cin.get()) == '\n') {
+                    password = true;
+                }
+                else if (option == 'Y' || option == 'y') {
+                    password = true;
+                    cin.ignore();
+                }
+                else if (option == 'N' || option == 'n') {
+                    password = false;
+                    cin.ignore();
+                }
+                else {
+                    cout << "输入错误，请重新输入." << endl;
+                    continue;
+                }
+                cout << "是否导出姓名(Y/n)：";
+                if ((option = cin.get()) == '\n') {
+                    name = true;
+                }
+                else if (option == 'Y' || option == 'y') {
+                    name = true;
+                    cin.ignore();
+                }
+                else if (option == 'N' || option == 'n') {
+                    name = false;
+                    cin.ignore();
+                }
+                else {
+                    cout << "输入错误，请重新输入." << endl;
+                    continue;
+                }
+                cout << "是否导出余额(Y/n)：";
+                if ((option = cin.get()) == '\n') {
+                    balance = true;
+                }
+                else if (option == 'Y' || option == 'y') {
+                    balance = true;
+                    cin.ignore();
+                }
+                else if (option == 'N' || option == 'n') {
+                    balance = false;
+                    cin.ignore();
+                }
+                else {
+                    cout << "输入错误，请重新输入." << endl;
+                    continue;
+                }
+                cout << "是否导出卡号(Y/n)：";
+                if ((option = cin.get()) == '\n') {
+                    card = true;
+                }
+                else if (option == 'Y' || option == 'y') {
+                    card = true;
+                    cin.ignore();
+                }
+                else if (option == 'N' || option == 'n') {
+                    card = false;
+                    cin.ignore();
+                }
+                else {
+                    cout << "输入错误，请重新输入." << endl;
+                    continue;
+                }
+                cout << "是否导出状态(Y/n)：";
+                if ((option = cin.get()) == '\n') {
+                    status = true;
+                }
+                else if (option == 'Y' || option == 'y') {
+                    status = true;
+                    cin.ignore();
+                }
+                else if (option == 'N' || option == 'n') {
+                    status = false;
+                    cin.ignore();
+                }
+                else {
+                    cout << "输入错误，请重新输入." << endl;
+                    continue;
+                }
+                exportData(id, password, name, balance, card, status);
+                break;
+            }
+            break;
+        }
         case '0': {
             return;
         }
@@ -672,4 +783,42 @@ void Admin::saveData() {
     strcpy(ad.name, getName().c_str());
     outfile.write((char*)&ad, sizeof(adminData));
     outfile.close();
+}
+void Admin::exportData(bool id, bool password, bool name, bool balance, bool card, bool status) {
+    ofstream outfile("exportUsers.txt", ios::out);
+    if (!outfile) {
+        cerr << "Error: could not open outfile export.dat" << endl;
+        exit(1);
+    }
+    if (id) outfile << "账号\t\t";
+    if (password) outfile << "密码\t\t";
+    if (name) outfile << "姓名\t";
+    if (balance) outfile << "余额\t";
+    if (card) outfile << "卡号\t\t";
+    if (status) outfile << "状态\n";
+    ifstream infile1("users.dat", ios::in), infile2;
+    if (!infile1.is_open()) {
+        cerr << "用户文件已丢失！" << endl;
+        exit(1);
+    }
+    account acc;
+    while (infile1.read((char*)&acc, sizeof(account))) {
+        infile2.open((string)acc.id + ".dat", ios::in);
+        if (!infile2) {
+            cerr << "Error: could not open infile " << acc.id << ".dat" << endl;
+            exit(1);
+        }
+        userData ud;
+        infile2.read((char*)&ud, sizeof(userData));
+        if (id) outfile << acc.id << '\t';
+        if (password) outfile << acc.password << '\t';
+        if (name) outfile << ud.name << '\t';
+        if (balance) outfile << ud.balance << '\t';
+        if (card) outfile << ud.card << '\t';
+        if (status) outfile << (ud.status ? "已挂失" : "正常") << '\n';
+        infile2.close();
+    }
+    infile1.close();
+    outfile.close();
+    cout << "导出成功！" << endl;
 }

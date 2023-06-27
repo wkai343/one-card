@@ -2,7 +2,6 @@
 #include<fstream>
 #include<cstdlib>
 #include"Admin.h"
-#include"User.h"
 #include"isExist.h"
 using namespace std;
 int n = 0;

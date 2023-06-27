@@ -30,7 +30,7 @@ void User::addRecord(float amount, Record::TYPE type) {
     recordNum++;
 }
 void User::viewRecord(const Record& record) {
-    cout << record.ti.year << "-" << record.ti.month << "-" << record.ti.day << " " << record.ti.hour << ":" << record.ti.minute << ":" << record.ti.second << " ";
+    cout << record.ti << ' ';
     switch (record.type) {
     case Record::RECHARGE:
         cout << "充值 ";
@@ -229,6 +229,7 @@ void User::openMenu() {
         cout << "3.充值" << endl;
         cout << "4.查询记录" << endl;
         cout << "5.修改信息" << endl;
+        cout << "6.导出记录" << endl;
         cout << "0.退出" << endl;
         cout << "请选择：";
         if ((choice = cin.get()) == '\n') {
@@ -387,6 +388,9 @@ void User::openMenu() {
             }
             break;
         }
+        case '6':
+            exportRecords();
+            break;
         case '0': {
             return;
             break;
@@ -396,6 +400,47 @@ void User::openMenu() {
             break;
         }
     }
+}
+void User::exportRecords() {
+    ofstream outfile(getId()+"-records.txt");
+    if (!outfile.is_open()) {
+        cout << "文件打开失败！" << endl;
+        return;
+    }
+    outfile << "学号：" << getId() << endl;
+    outfile << "姓名：" << getName() << endl;
+    outfile << "卡号：" << getCard() << endl;
+    outfile << "余额：" << getBalance() << endl;
+    outfile << "状态：" << (getStatus() ? "已挂失" : "正常") << endl;
+    outfile << "记录：" << endl;
+    outfile << "时间\t\t\t\t金额\t\t类型" << endl;
+    Record record;
+    ifstream infile(getId() + ".dat", ios::binary | ios::in);
+    if (!infile.is_open()) {
+        cout << "文件打开失败！" << endl;
+        return;
+    }
+    infile.seekg(sizeof(userData), ios::beg);
+    while (infile.read((char*)&record, sizeof(Record))) {
+        outfile << record.ti << "\t" << record.amount << "\t\t";
+        switch (record.type) {
+        case Record::RECHARGE:
+            outfile << "充值";
+            break;
+        case Record::BATH:
+            outfile << "洗浴";
+            break;
+        case Record::DINE:
+            outfile << "餐饮";
+            break;
+        case Record::SHOP:
+            outfile << "购物";
+            break;
+        }
+        outfile << endl;
+    }
+    outfile.close();
+    cout << "导出成功！" << endl;
 }
 void User::loadData() {
     ifstream infile("users.dat", ios::binary | ios::in);

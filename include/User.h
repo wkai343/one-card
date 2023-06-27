@@ -50,6 +50,10 @@ struct Time {
         }
         return false;
     }
+    friend ostream& operator<<(ostream& out, const Time& ti) {
+        out << ti.year << '/' << ti.month << '/' << ti.day << '/' << ti.hour << ':' << ti.minute << ':' << ti.second;
+        return out;
+    }
 };
 struct Record {
     float amount = 0;
@@ -81,6 +85,7 @@ public:
     void viewRecord(const Record& record);
     void viewRecords();
     void changeStatus();
+    void exportRecords();
     virtual void openMenu();
     virtual void viewInfo();
     virtual void loadData();

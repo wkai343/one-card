@@ -16,7 +16,8 @@ public:
     void modifyUserName(string id, string name);
     void modifyUserPassword(string id, string password);
     void changeUserStatus(string id);
-    void reissueCard(string id);
+    void reissueCard(string id,float money);
+    void exportData(bool id,bool password,bool name,bool balance,bool card,bool status);
     virtual void viewInfo();
     virtual void openMenu();
     virtual void loadData();
