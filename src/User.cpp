@@ -229,7 +229,7 @@ void User::openMenu() {
         cout << "3.充值" << endl;
         cout << "4.查询记录" << endl;
         cout << "5.修改信息" << endl;
-        cout << "6.导出记录" << endl;
+        cout << "6.导出信息" << endl;
         cout << "0.退出" << endl;
         cout << "请选择：";
         if ((choice = cin.get()) == '\n') {
@@ -402,7 +402,7 @@ void User::openMenu() {
     }
 }
 void User::exportRecords() {
-    ofstream outfile(getId()+"-records.txt");
+    ofstream outfile(getId()+".txt");
     if (!outfile.is_open()) {
         cout << "文件打开失败！" << endl;
         return;
