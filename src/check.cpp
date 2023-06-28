@@ -48,3 +48,24 @@ float balanceCheck(const char* prompt) {
     }
     return 0;
 }
+int cardCheck(const char* prompt) {
+    cout << prompt;
+    int card;
+    while (true) {
+        cin >> card;
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1024, '\n');
+            cout << "输入错误，请重新输入：";
+        }
+        else {
+            if (card < 0) {
+                cout << "输入错误，请重新输入：";
+                continue;
+            }
+            cin.ignore(1024, '\n');
+            return card;
+        }
+    }
+    return 0;
+}

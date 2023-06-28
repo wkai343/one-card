@@ -346,6 +346,10 @@ void Admin::openMenu() {
                     string id;
                     cout << "请输入用户账号：";
                     cin >> id;
+                    if (!idCheck(id)) {
+                        cout << "账号格式错误." << endl;
+                        break;
+                    }
                     if (!isExist(id, 1)) {
                         cout << "用户不存在." << endl;
                         break;
@@ -359,6 +363,10 @@ void Admin::openMenu() {
                     string name;
                     cout << "请输入用户姓名：";
                     cin >> name;
+                    if (!nameCheck(name)) {
+                        cout << "输入字符超出限制." << endl;
+                        break;
+                    }
                     ifstream infile1("users.dat", ios::binary | ios::in), infile2;
                     if (!infile1) {
                         cerr << "无法打开文件." << endl;
@@ -388,8 +396,7 @@ void Admin::openMenu() {
                 }
                 case '3': {
                     int card;
-                    cout << "请输入用户卡号：";
-                    cin >> card;
+                    card = cardCheck("请输入用户卡号：");
                     ifstream infile1("users.dat", ios::binary | ios::in), infile2;
                     if (!infile1) {
                         cerr << "无法打开文件." << endl;
@@ -547,7 +554,7 @@ void Admin::openMenu() {
                 }
                 case '4': {
                     float money;
-                    money=balanceCheck("请输入补办费用：");
+                    money = balanceCheck("请输入补办费用：");
                     reissueCard(id, money);
                     break;
                 }
