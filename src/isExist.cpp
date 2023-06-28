@@ -1,5 +1,4 @@
 #include"isExist.h"
-#include"account.h"
 int isExist(string id, bool check) {
     string str;
     if (check) str = "users.dat";

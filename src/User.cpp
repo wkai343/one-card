@@ -164,8 +164,16 @@ void User::viewRecords() {
             cin >> time1.year;
             cout << "月：";
             cin >> time1.month;
+            if(time1.month < 1 || time1.month > 12) {
+                cout << "输入错误，请重新输入！" << endl;
+                break;
+            }
             cout << "日：";
             cin >> time1.day;
+            if(time1.day < 1 || time1.day > 31) {
+                cout << "输入错误，请重新输入！" << endl;
+                break;
+            }
             time1.hour = 0;
             time1.minute = 0;
             time1.second = 0;
@@ -174,8 +182,16 @@ void User::viewRecords() {
             cin >> time2.year;
             cout << "月：";
             cin >> time2.month;
+            if(time2.month < 1 || time2.month > 12) {
+                cout << "输入错误，请重新输入！" << endl;
+                break;
+            }
             cout << "日：";
             cin >> time2.day;
+            if(time2.day < 1 || time2.day > 31) {
+                cout << "输入错误，请重新输入！" << endl;
+                break;
+            }
             time2.hour = 23;
             time2.minute = 59;
             time2.second = 59;
