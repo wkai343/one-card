@@ -367,24 +367,19 @@ void Admin::openMenu() {
                         cout << "输入字符超出限制." << endl;
                         break;
                     }
-                    ifstream infile1("users.dat", ios::binary | ios::in), infile2;
+                    ifstream infile1("users.dat", ios::binary | ios::in);
                     if (!infile1) {
                         cerr << "无法打开文件." << endl;
                         exit(1);
                     }
                     system("cls");
                     account acc;
-                    userData usr;
+                    User usr;
                     int n = 0;
                     while (infile1.read((char*)&acc, sizeof(account))) {
-                        infile2.open((string)acc.id + ".dat", ios::binary | ios::in);
-                        if (!infile2) {
-                            cerr << "无法打开文件." << endl;
-                            exit(1);
-                        }
-                        infile2.read((char*)&usr, sizeof(userData));
-                        infile2.close();
-                        if (usr.name == name) {
+                        usr = User(acc.id);
+                        usr.loadData();
+                        if (usr.getName() == name) {
                             viewUser(acc.id);
                             n++;
                         }
@@ -397,24 +392,19 @@ void Admin::openMenu() {
                 case '3': {
                     int card;
                     card = cardCheck("请输入用户卡号：");
-                    ifstream infile1("users.dat", ios::binary | ios::in), infile2;
+                    ifstream infile1("users.dat", ios::binary | ios::in);
                     if (!infile1) {
                         cerr << "无法打开文件." << endl;
                         exit(1);
                     }
                     system("cls");
                     account acc;
-                    userData usr;
+                    User usr;
                     int n = 0;
                     while (infile1.read((char*)&acc, sizeof(account))) {
-                        infile2.open((string)acc.id + ".dat", ios::binary | ios::in);
-                        if (!infile2) {
-                            cerr << "无法打开文件." << endl;
-                            exit(1);
-                        }
-                        infile2.read((char*)&usr, sizeof(userData));
-                        infile2.close();
-                        if (usr.card == card) {
+                        usr = User(acc.id);
+                        usr.loadData();
+                        if (usr.getCard() == card) {
                             viewUser(acc.id);
                             n++;
                         }
@@ -442,25 +432,20 @@ void Admin::openMenu() {
                         else cout << "输入错误，请重新输入." << endl;
                     }
                     if (option == '0') break;
-                    ifstream infile1("users.dat", ios::binary | ios::in), infile2;
+                    ifstream infile1("users.dat", ios::binary | ios::in);
                     if (!infile1) {
                         cerr << "无法打开文件." << endl;
                         exit(1);
                     }
                     system("cls");
                     account acc;
-                    userData usr;
+                    User usr;
                     bool status = option - '1';
                     int n = 0;
                     cout << "账号\t\t姓名\t余额\t卡号\t\t状态" << endl;
                     while (infile1.read((char*)&acc, sizeof(account))) {
-                        infile2.open((string)acc.id + ".dat", ios::binary | ios::in);
-                        if (!infile2) {
-                            cerr << "无法打开文件." << endl;
-                            exit(1);
-                        }
-                        infile2.read((char*)&usr, sizeof(userData));
-                        infile2.close();
+                        usr = User(acc.id);
+                        usr.loadData();
                         if (usr.status == status) {
                             viewUser(acc.id, 0);
                             n++;
